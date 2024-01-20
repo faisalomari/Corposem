@@ -47,14 +47,14 @@ def clear_name(name): #input a string (name) output the cleared name
             elif comp == "-" or comp == "," or comp == '–' or comp == '-' or comp =='-':#if the name has " - " then take the first part
                 break
             else:
-                new_name += comp
+                new_name += comp+" "
 
-    return new_name
+    return new_name.strip()
+
 
 
 def clean_text(text):
-    return ''
-
+    return text
 
 data = get_all_docx_in_current_foleder()
 possition_types =['היו"ר',]
@@ -114,15 +114,21 @@ for docx_number,docx in enumerate(data):
         speaker_text = {}
         first_subject_counter = 2
         for par_number, par in enumerate (docx['text'].paragraphs):
-            if first_subject_counter>0 and par.text in first_subject:
+            if first_subject_counter>0 and len(set(par.text.split(' ')).intersection(first_subject.split(' ')))>3:
                 first_subject_counter -=1
             if first_subject_counter ==0:
-                if par.text.strip().find(":") == len(par.text.strip()) -1: 
-                    name = clear_name(par.text.strip())
-                    if name not in list(speaker_text.keys()):
-                        speaker_text[name] = []
-                else:
-                    speaker_text[name] = speaker_text[name].append(clean_text(par.text.strip()))
+                symbol_index = par.text.strip().find(":")
+                if symbol_index>=0 and symbol_index== len(par.text.strip()) -1: 
+                    speaker_name = clear_name(par.text.strip())
+                    if speaker_name not in list(speaker_text.keys()):
+                        speaker_text[speaker_name] = []
+                elif speaker_name!='':
+                    text = clean_text(par.text.strip())
+                    if text != '':
+
+                        speaker_text[speaker_name].append(text)
+        data[docx_number]['speaker_data'] = speaker_text
+
                     
 
         
