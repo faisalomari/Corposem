@@ -52,7 +52,8 @@ def clear_name(name): #input a string (name) output the cleared name
     return new_name
 
 
-
+def clean_text(text):
+    return ''
 
 
 data = get_all_docx_in_current_foleder()
