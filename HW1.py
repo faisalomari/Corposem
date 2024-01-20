@@ -109,12 +109,19 @@ for docx_number,docx in enumerate(data):
 
 
         #new code
-        take_names = False
-        for par in docx['text'].paragraphs:
-            if take_names: 
-                if ':' in par.text:
-                    continue
-                else :
+        speaker_name =''
+        speaker_text = {}
+        first_subject_counter = 2
+        for par_number, par in enumerate (docx['text'].paragraphs):
+            if first_subject_counter>0 and par.text in first_subject:
+                first_subject_counter -=1
+            if first_subject_counter ==0:
+                if par.text.strip().find(":") == len(par.text.strip()) -1: 
+                    name = clear_name(par.text.strip())
+                    if name not in list(speaker_text.keys()):
+                        speaker_text[name] = []
+                else:
+                    speaker_text[name] = speaker_text[name].append(clean_text(par.text.strip()))
                     
 
         
