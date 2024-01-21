@@ -107,8 +107,6 @@ for docx_number,docx in enumerate(data):
                 
                 #else:
                     
-
-
         #new code
         speaker_name =''
         speaker_text = {}
@@ -132,15 +130,6 @@ for docx_number,docx in enumerate(data):
         data[docx_number]['speaker_data'] = speaker_text
 
                     
-
-        
-
-
-
-
-
-
-
 
         #end of new code
         print('documant number = '+docx['debugging_number'])
