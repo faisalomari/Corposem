@@ -6,7 +6,7 @@ def get_all_docx_in_current_foleder():
     # go throw all the documants in the directory
     for file_number,filename in enumerate(os.listdir()):
         if filename.endswith('docx'):
-
+            info[-1]['file_name'] = filename
             attributes = filename.split('_')# get the attributes of the file
             #then assigen it to the right variable
             info.append({})
@@ -114,11 +114,13 @@ for docx_number,docx in enumerate(data):
         speaker_text = {}
         first_subject_counter = 2
         for par_number, par in enumerate (docx['text'].paragraphs):
-            if first_subject_counter>0 and len(set(par.text.split(' ')).intersection(first_subject.split(' ')))>3:
+            if first_subject_counter>0 and 'יו"ר' in par.text and ":" in par.text:
+                first_subject_counter = 0
+            if first_subject_counter>0 and len(set(par.text.split(' ')).intersection(first_subject.split(' ')))>3:# if we have more than 3 word intersection this is probably the first subject 
                 first_subject_counter -=1
             if first_subject_counter ==0:
                 symbol_index = par.text.strip().find(":")
-                if symbol_index>=0 and symbol_index== len(par.text.strip()) -1: 
+                if symbol_index>=0 and symbol_index== len(par.text.strip()) -1:
                     speaker_name = clear_name(par.text.strip())
                     if speaker_name not in list(speaker_text.keys()):
                         speaker_text[speaker_name] = []
