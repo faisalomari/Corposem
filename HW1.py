@@ -1,5 +1,6 @@
 from docx import Document
 import os
+import pandas
 
 def get_all_docx_in_current_foleder():
     info =[]
@@ -64,16 +65,18 @@ possition_types =['היו"ר',]
 c = 0 
 c1 = 0 
 
+'''
 for docx in data:
     if docx["debugging_number"] == '232326.docx':
         for par in docx["text"].paragraphs:
             if par.text != '' and par.text[0] == '<':
                 par.text = par.text[1:-1]
             print(par.text[::-1])
+'''
 
 
-
-for docx_number,docx in enumerate(data):
+temp_data = data
+for docx_number,docx in enumerate(temp_data):
 
 
     if docx['type'] == 'committee':
@@ -115,30 +118,51 @@ for docx_number,docx in enumerate(data):
         speaker_text = {}
         first_subject_counter = 2
         for par_number, par in enumerate (docx['text'].paragraphs):
+            # some times the chairman opens before the fire subject apear
             if first_subject_counter>0 and 'יו"ר' in par.text and ":" in par.text:
                 first_subject_counter = 0
-            if first_subject_counter>0 and len(set(par.text.split(' ')).intersection(first_subject.split(' ')))>3:# if we have more than 3 word intersection this is probably the first subject 
+            if first_subject_counter>0 and len(set(par.text.split(' ')).intersection(first_subject.split(' ')))>=(3*len(first_subject.split(' ')))/4:# if we have more than 3/4 of the words interact this is probably the first subject 
                 first_subject_counter -=1
             if first_subject_counter ==0:
+                #begin to read each speaker data
                 symbol_index = par.text.strip().find(":")
-                if symbol_index>=0 and symbol_index== len(par.text.strip()) -1:
+                if symbol_index>=0 and symbol_index== len(par.text.strip()) -1:# f we arrive at a sentence that has ':' in the end then this is a speaker
                     speaker_name = clear_name(par.text.strip())
                     if speaker_name not in list(speaker_text.keys()):
                         speaker_text[speaker_name] = []
+
                 elif speaker_name!='':
                     text = clean_text(par.text.strip())
+                    # add the text to the speaker after making sure it is not empty and clean
                     if text != '':
 
                         speaker_text[speaker_name].append(text)
+        
         data[docx_number]['speaker_data'] = speaker_text
 
                     
-
+        
         #end of new code
         print('documant number = '+docx['debugging_number'])
         print(first_subject[::-1])
 
-            
+
+    #creating the csv
+columns_name = {'protocol_name':[],'knesset_number':[],'protocol_type':[],'speaker_name':[],'sentence_text':[]}
+df = pandas.DataFrame(columns_name)
+for row in data:
+    if row['type'] == 'plenary':
+        continue
+    new_row = {'protocol_name':row['file_name'],'knesset_number':row['number'],'protocol_type':row['type']}
+    for speaker in row['speaker_data'].keys():
+        for text in row['speaker_data'][speaker]:
+            new_row ['speaker_name'] = speaker
+            new_row ['sentence_text'] = text
+            df.loc[len(df)] = new_row
+df.to_csv('our_data.csv',index = False ,encoding='utf-8')    
+
+
+
         #if first_subject =='':
             #print (docx['debugging_number'])
 print('c = '+str(c))
