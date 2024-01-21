@@ -4,12 +4,15 @@ import os
 def get_all_docx_in_current_foleder():
     info =[]
     # go throw all the documants in the directory
-    for file_number,filename in enumerate(os.listdir()):
+    current_path =os.path.join(os.getcwd(),'docx_knesset_protocols')
+    
+    for file_number,filename in enumerate(os.listdir(current_path)):
         if filename.endswith('docx'):
-            info[-1]['file_name'] = filename
+            
             attributes = filename.split('_')# get the attributes of the file
             #then assigen it to the right variable
             info.append({})
+            info[-1]['file_name'] = filename
             info[-1]['number'] = int(attributes[0])# the XX number 
 
             if attributes[1] == 'ptv':#committee or plenary
@@ -17,7 +20,7 @@ def get_all_docx_in_current_foleder():
             elif (attributes[1] == 'ptm'):
                 info[-1]['type'] = 'plenary'
 
-            text = Document(filename)
+            text = Document(os.path.join(current_path,filename))
             #clear the text from B,
             '''for par_number, par in enumerate (text.paragraphs):
                 if par.text != '' and par.text[0] == '<': #some the senteces begin with "<" and ends with ">" and does not appear in the document so we remvove them 
