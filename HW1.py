@@ -107,8 +107,6 @@ for docx_number,docx in enumerate(data):
                 
                 #else:
                     
-
-
         #new code
         speaker_name =''
         speaker_text = {}
@@ -124,15 +122,6 @@ for docx_number,docx in enumerate(data):
                 else:
                     speaker_text[name] = speaker_text[name].append(clean_text(par.text.strip()))
                     
-
-        
-
-
-
-
-
-
-
 
         #end of new code
         print('documant number = '+docx['debugging_number'])
