@@ -1,6 +1,8 @@
 from docx import Document
 import os
 import pandas
+import re
+
 
 def get_all_docx_in_current_foleder():
     info =[]
@@ -40,9 +42,10 @@ def clear_name(name): #input a string (name) output the cleared name
     for comp in componints:
         if '(' in comp:
              open_parentheses = False
+             continue
         if open_parentheses:
             continue
-        if '"' not in comp:#this means that the component is not a short cut
+        if '"' not in comp and '”' not in comp:#this means that the component is not a short cut
             if ")" in comp: #if we have open_parentheses then we should not inclut what is in it
                 if "(" in comp:# if we have closing parentheses then we just dont take this comp
                     continue
@@ -52,13 +55,63 @@ def clear_name(name): #input a string (name) output the cleared name
                 break
             else:
                 new_name += comp+" "
+    new_name = new_name.strip()
+    if new_name != "" and new_name.find(':')+1 == len(new_name):
+        new_name = new_name[:-1]
 
     return new_name.strip()
 
 
 
 def clean_text(text):
-    return text
+    if text == '':
+        return ''
+    pattern = re.compile('[א-ת0-9!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ ]+')
+
+    # Find all matches in the input string
+    matches = pattern.findall(text)
+
+    # Join the matched characters to form the cleaned string
+    cleaned_text = ''.join(matches)
+    
+    #now we have cleared all the charetars that can be like English letters ,Japanese .. 
+
+    #now we find if there is a non hebrew letters that appears more than one time
+    non_alphabetic_characters = ['!', '"', '#', '$', '%', '&', '\'', '(', ')', '*',
+                              '+', ',', '-', '.', '/', ':', ';', '<', '=', '>',
+                              '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|',
+                              '}', '~'] 
+    hebrew_letters = [chr(code) for code in range(0x05D0, 0x05EA + 1)]
+
+    new_text = ''
+    i = 0 
+    flag_hebrew = False # if we dont have any hebrew then this is not a text
+    while i< len(cleaned_text):
+        if flag_hebrew == False and cleaned_text[i] in hebrew_letters:
+            flag_hebrew = True
+        elif flag_hebrew == False:
+            i+=1
+        if flag_hebrew == True: # the first charecter must be hebrew
+            delelte_last = False
+            
+            while i!=len(cleaned_text) and cleaned_text[i] in non_alphabetic_characters and get_the_next_index_not_space(cleaned_text,i) != len(cleaned_text) and cleaned_text[get_the_next_index_not_space(cleaned_text,i)] in non_alphabetic_characters:
+                i=get_the_next_index_not_space(cleaned_text,i)
+                delelte_last = True
+            if delelte_last:
+                i=get_the_next_index_not_space(cleaned_text,i)
+            if i!= len(cleaned_text):
+                new_text+=cleaned_text[i]
+                i+=1
+
+    return new_text
+
+def get_the_next_index_not_space(text,i):
+    for j in range(i+1,len(text)):
+        if text[j] != ' ':
+            return j
+    return len(text)
+    
+
 
 data = get_all_docx_in_current_foleder()
 possition_types =['היו"ר',]
@@ -126,16 +179,16 @@ for docx_number,docx in enumerate(temp_data):
             if first_subject_counter ==0:
                 #begin to read each speaker data
                 symbol_index = par.text.strip().find(":")
-                if symbol_index>=0 and symbol_index== len(par.text.strip()) -1:# f we arrive at a sentence that has ':' in the end then this is a speaker
+                if symbol_index>=0 and symbol_index== len(par.text.strip()) -1 and all(run.underline == True for run in par.runs):# f we arrive at a sentence that has ':' in the end then this is a speaker
                     speaker_name = clear_name(par.text.strip())
                     if speaker_name not in list(speaker_text.keys()):
                         speaker_text[speaker_name] = []
 
                 elif speaker_name!='':
-                    text = clean_text(par.text.strip())
+                    text = clean_text(par.text.strip()).strip()
                     # add the text to the speaker after making sure it is not empty and clean
                     if text != '':
-
+                        
                         speaker_text[speaker_name].append(text)
         
         data[docx_number]['speaker_data'] = speaker_text
@@ -143,28 +196,29 @@ for docx_number,docx in enumerate(temp_data):
                     
         
         #end of new code
-        print('documant number = '+docx['debugging_number'])
-        print(first_subject[::-1])
+        #print('documant number = '+docx['debugging_number'])
+        #print(first_subject[::-1])
 
 
     #creating the csv
 columns_name = {'protocol_name':[],'knesset_number':[],'protocol_type':[],'speaker_name':[],'sentence_text':[]}
+list_of_speakers = []
 df = pandas.DataFrame(columns_name)
 for row in data:
     if row['type'] == 'plenary':
         continue
     new_row = {'protocol_name':row['file_name'],'knesset_number':row['number'],'protocol_type':row['type']}
     for speaker in row['speaker_data'].keys():
+        list_of_speakers.append(speaker)
         for text in row['speaker_data'][speaker]:
             new_row ['speaker_name'] = speaker
             new_row ['sentence_text'] = text
             df.loc[len(df)] = new_row
-df.to_csv('our_data.csv',index = False ,encoding='utf-8')    
 
+speaker_set = set(list_of_speakers)
+df.to_csv('our_data.csv',index = False ,encoding='utf-8')
+df.to_excel('our_data.xlsx',index = False)    
 
-
-        #if first_subject =='':
-            #print (docx['debugging_number'])
 print('c = '+str(c))
 
             
