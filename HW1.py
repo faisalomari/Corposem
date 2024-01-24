@@ -2,6 +2,7 @@ from docx import Document
 import os
 import pandas
 import re
+import sys
 
 def check_underline(par):
     text = ''
@@ -164,6 +165,10 @@ def split_paragrph(par):
         elif len(sentence.strip().split())>=4: #may change
             results.append(sentence.strip())
     return results
+
+#if len(sys.argv)>2:
+#    sys.exit(1)
+
 
 
 data = get_all_docx_in_current_foleder()
