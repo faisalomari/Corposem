@@ -2,6 +2,7 @@ from docx import Document
 import os
 import pandas
 import re
+from tqdm import tqdm
 #import sys
 
 def check_underline(par):
@@ -183,7 +184,7 @@ def make_token(list_text):
 data = get_all_docx_in_current_foleder()
 
 temp_data = data
-for docx_number,docx in enumerate(temp_data):
+for docx_number, docx in tqdm(enumerate(temp_data), total=len(temp_data)):
     if docx['type'] == 'plenary':
         speaker_name ='' #the name of the current_speaker
         speaker_text = {}# a dictionary of all the availabe text (speakre name,all speaker's text)
