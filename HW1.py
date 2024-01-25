@@ -309,7 +309,7 @@ columns_name = {'protocol_name':[],'knesset_number':[],'protocol_type':[],'speak
 list_of_speakers = []
 #intilize the data frame
 df = pandas.DataFrame(columns_name)
-for row_index , row in enumerate(data):
+for row_index, row in tqdm(enumerate(data), total=len(data)):
     #make a new row for each file
     new_row = {'protocol_name':row['file_name'],'knesset_number':row['number'],'protocol_type':row['type']}
     for speaker in row['speaker_data'].keys():
