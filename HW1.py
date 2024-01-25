@@ -2,7 +2,7 @@ from docx import Document
 import os
 import pandas
 import re
-import sys
+#import sys
 
 def check_underline(par):
     text = ''
@@ -166,6 +166,15 @@ def split_paragrph(par):
             results.append(sentence.strip())
     return results
 
+def make_token(list_text):
+    new_list = []
+    for text in list_text:
+        text_parts = text.split(' ')
+        if len(text_parts) < 4: # the text must be at least 4 tokens
+            continue
+        new_list.extend(text_parts)
+    return new_list
+
 #if len(sys.argv)>2:
 #    sys.exit(1)
 
@@ -179,8 +188,6 @@ for docx_number,docx in enumerate(temp_data):
         speaker_name ='' #the name of the current_speaker
         speaker_text = {}# a dictionary of all the availabe text (speakre name,all speaker's text)
         for par in docx['text'].paragraphs:
-            print(par.text)
-
             symbol_index = par.text.strip().find(":")
             #if we arrive at a sentence that has ':' in the end and all of it underlined then this is a speaker
             if symbol_index>=0 and symbol_index== len(par.text.strip()) -1 and check_underline(par):
@@ -197,7 +204,7 @@ for docx_number,docx in enumerate(temp_data):
                 # add the text to the speaker after making sure it is not empty and clean
                     if speaker_name != '':
                     
-                        speaker_text[speaker_name].extend(text)
+                        speaker_text[speaker_name].extend(make_token(text))
                 else:
                     speaker_name = new_speaker_name #if there is no problem with new name make it the current speaker
                 if speaker_name not in list(speaker_text.keys()):
@@ -212,7 +219,7 @@ for docx_number,docx in enumerate(temp_data):
                     cleaned_texted_part = clean_text(text_part)
                     if cleaned_texted_part != '':
                         text.append(cleaned_texted_part)        
-                speaker_text[speaker_name].extend(text)
+                speaker_text[speaker_name].extend(make_token(text))
 
         data[docx_number]['speaker_data'] = speaker_text# save the data
 
@@ -270,7 +277,7 @@ for docx_number,docx in enumerate(temp_data):
                     # add the text to the speaker after making sure that speaker is not empty is not empty and clean
                         if speaker_name != '':
                             
-                            speaker_text[speaker_name].extend(text)
+                            speaker_text[speaker_name].extend(make_token(text))
                     else:
                         speaker_name = new_speaker_name #like the previous kind if the name is a real name then it is the speaker
                     # add it to the dictionary if he doesnt have an entry
@@ -285,7 +292,7 @@ for docx_number,docx in enumerate(temp_data):
                         cleaned_texted_part = clean_text(text_part)
                         if cleaned_texted_part != '':
                             text.append(cleaned_texted_part)        
-                    speaker_text[speaker_name].extend(text)
+                    speaker_text[speaker_name].extend(make_token(text))
         #sav e the data of the current file
         data[docx_number]['speaker_data'] = speaker_text
 
@@ -320,9 +327,10 @@ for row_index , row in enumerate(data):
     
 
 #convert
-df.to_csv('our_data.csv',index = False ,encoding='utf-8')
-df.to_excel('our_data.xlsx',index = False)    
 
-print('program finshied')
+df.to_csv('our_data.csv',index = False ,encoding='utf-8')
+#df.to_excel('our_data.xlsx',index = False)    
+
+print('csv = ' + str(len(df)))
 
             
