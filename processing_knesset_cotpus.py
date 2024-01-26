@@ -116,11 +116,6 @@ def clean_text(text):
         if cleaned_text != text:
             return ''
         #now we have cleared all the charetars that can be like English letters ,Japanese .. 
-
-        '''non_alphabetic_characters = ['!', '"', '#', '$', '%', '&', '\'', '(', ')', '*',
-                                '+', ',', '-', '.', '/', ':', ';', '<', '=', '>',
-                                '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|',
-                                '}', '~'] '''
         hebrew_letters = [chr(code) for code in range(0x05D0, 0x05EA + 1)]
 
         hebrew = False
@@ -199,21 +194,6 @@ def split_paragrph(par):
 
                 
 
-'''
-def split_paragrph(par):
-    pattern = re.compile(r'[.؟!:;]')
-    
-    sentences =  pattern.split(par.text)
-
-    results = []
-    #delelte epmty strings
-    for sentence in sentences:
-        if sentence.strip() == '':
-            continue
-        elif len(sentence.strip().split())>=4: #may change
-            results.append(sentence.strip())
-    return results
-'''
 
 def make_token(list_text):
     try:
