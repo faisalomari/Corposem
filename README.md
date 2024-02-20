@@ -10,7 +10,7 @@
   <h2>How to Run</h2>
   <h3>Prerequisites</h3>
   <ul>
-    <li>Python 3.x installed on your system.</li>
+    <li>Python <3.7 installed on your system.</li>
     <li>Required Python packages installed. You can install them using <code>pip install -r requirements.txt</code>.</li>
   </ul>
   <h3>Steps to Run</h3>
